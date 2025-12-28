@@ -2,7 +2,7 @@ from sqlalchemy import Column,DateTime, Integer,String,ForeignKey,Float
 from datetime import datetime
 
 from app.db.base import Base
-class Prediction(Base):
+class PredictionReport(Base):
     __tablename__ = "prediction_reports"
 
     id = Column(Integer,primary_key =True)

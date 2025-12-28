@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
 
+    # App
+    BASE_URL : str = "http://localhost:8000"
+
     model_config = SettingsConfigDict(
         env_file=str(ENV_FILE),
         env_file_encoding='utf-8',

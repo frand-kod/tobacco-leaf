@@ -7,6 +7,7 @@ class PredictionResponse(BaseModel):
 class ReportResponse(BaseModel):
     id: int
     label: str
+    image_path:str
     confidence: float
     created_at: datetime
 

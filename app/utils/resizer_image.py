@@ -2,15 +2,18 @@
 import os, io, uuid
 from PIL import Image
 
-UPLOAD_DIR = "app/uploads/predictions"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+BASE_UPLOAD_DIR = "app/uploads"
+PUBLIC_DIR = "predictions"
+
+FS_DIR = os.path.join(BASE_UPLOAD_DIR, PUBLIC_DIR)
+os.makedirs(FS_DIR, exist_ok=True)
 
 def save_resized_image(contents: bytes) -> str:
     img = Image.open(io.BytesIO(contents)).convert("RGB")
     img = img.resize((224, 224))
 
     filename = f"{uuid.uuid4()}.jpg"
-    file_path = os.path.join(UPLOAD_DIR, filename)
-    img.save(file_path, "JPEG", quality=90)
+    fs_path = os.path.join(FS_DIR, filename)
+    img.save(fs_path, "JPEG", quality=90)
 
-    return file_path
+    return f"{PUBLIC_DIR}/{filename}"

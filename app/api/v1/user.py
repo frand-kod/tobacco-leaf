@@ -6,7 +6,7 @@ from app.db.session import SessionLocal
 from app.schemas.user import UserCreate, UserResponse, UserUpdate
 from app.services.user_service import UserService
 # jwt provider 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user,get_database
 
 # protect router level with token based
 router = APIRouter(
@@ -14,13 +14,6 @@ router = APIRouter(
      tags=["Users"],
      dependencies = [Depends(get_current_user)]
      )
-
-def get_database():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.get("/list", response_model=List[UserResponse])
 def get_users(

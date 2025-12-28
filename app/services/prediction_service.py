@@ -1,45 +1,75 @@
-from fastapi import UploadFile
+from fastapi import UploadFile,HTTPException
 from sqlalchemy.orm import Session
-from app.repository.predict_repository import Prediction
-
+from app.repository.predict_repository import PredictRepository
 from app.ml.predictor import predict_from_bytes
-from app.models.prediction_report import Prediction
+from app.models.prediction_report import PredictionReport
+from app.schemas.prediction import ReportResponse
 from app.utils.resizer_image import save_resized_image
+from app.utils.builder_url import build_img_url
 
 class PredictionService:
     @staticmethod
-    async def predict_and_save(
-        db: Session,
-        user_id: int,
-        file: UploadFile
-    ):
+    async def predict_and_save(db: Session, user_id: int, file: UploadFile):
         contents = await file.read()
-        # 1. predict
+
         result = predict_from_bytes(contents)
-        # 2. save image
         image_path = save_resized_image(contents)
-        # 3. save DB
-        report = Prediction(
+
+        report = PredictionReport(
             user_id=user_id,
             image_path=image_path,
             label=result["label"],
             confidence=result["confidence"]
         )
-        return Prediction.create_predict(db,report)
+
+        saved = PredictRepository.create_predict(db, report)
+
+        return ReportResponse(
+            id=saved.id,
+            label=saved.label,
+            image_path=build_img_url(saved.image_path),
+            confidence=saved.confidence,
+            created_at=saved.created_at
+        )
 
     @staticmethod
-    def get_predicts(db:Session):
-        return Prediction.get_predicts(db)
+    def get_reports(db: Session, user_id: int):
+        reports = PredictRepository.get__predict_by_user(db, user_id)
 
-    @staticmethod
-    def delete_predict(db: Session, predict_id: int):
-        predict = Prediction.get_predict_by_id(db, predict_id)
-        PreRepository.delete_predict(db, predict_id)
-        return {"message": "Prediction deleted"}
+        return [
+            ReportResponse(
+                id=r.id,
+                label=r.label,
+                image_path=build_img_url(r.image_path),
+                confidence=r.confidence,
+                created_at=r.created_at
+            )
+            for r in reports
+        ]
         
+
     @staticmethod
-    async def get_prediction_detail(db: Session, predict_id: int, user_id: int):
+    def get_prediction_detail(db: Session, predict_id: int, user_id: int):
         predict = PredictRepository.get_predict_by_id(db, predict_id)
+
         if not predict or predict.user_id != user_id:
             raise HTTPException(status_code=404, detail="Prediction not found")
-        return predict
+
+        return ReportResponse(
+                id=predict.id,
+                label=predict.label,
+                image_path=build_img_url(predict.image_path),
+                confidence=predict.confidence,
+                created_at=predict.created_at
+            )
+
+
+    @staticmethod
+    def delete_predict(db: Session, predict_id: int, user_id: int):
+        predict = PredictRepository.get_predict_by_id(db, predict_id)
+
+        if not predict or predict.user_id != user_id:
+            raise HTTPException(status_code=404, detail="Prediction not found")
+
+        PredictRepository.delete_predict(db, predict)
+        return {"message": "Prediction deleted"}
