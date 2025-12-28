@@ -1,0 +1,6 @@
+venv
+app/.env
+# Mengabaikan semua folder __pycache__ secara rekursif
+app/**/__pycache__
+database.db
+app/uploads
