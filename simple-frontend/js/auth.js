@@ -11,7 +11,8 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     localStorage.setItem("token", res.access_token);
     window.location.href = "dashboard.html";
   } catch (err) {
-    err.innerText = "Login failed";
+    document.getElementById("LoginError").textContent =
+      "Login failed: Invalid email or password";
   }
 });
 
