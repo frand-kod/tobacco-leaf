@@ -1,0 +1,30 @@
+@import 'tailwindcss';
+@theme {
+  /* Mengatur Inter sebagai font default (Sans) */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* Mengatur JetBrains Mono sebagai font teknis (Mono) */
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* Base style untuk memastikan font diterapkan secara halus */
+@layer base {
+  html {
+    font-size: 17px; /* Ukuran dasar yang sudah kita buat sebelumnya */
+    /* Mengatur jarak huruf sedikit lebih rapat secara global untuk Inter */
+    letter-spacing: 0.25em;
+    @apply text-gray-800 antialiased;
+  }
+  body {
+    @apply font-sans antialiased text-gray-800;
+  }
+
+  code,
+  pre {
+    @apply font-mono;
+  }
+  /* Opsional: Memberikan sedikit ruang antar paragraf agar tidak rapat */
+  p {
+    @apply mb-4;
+  }
+}

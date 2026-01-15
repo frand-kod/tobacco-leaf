@@ -17,12 +17,16 @@ class AuthService:
             )
 
         # jika match
+        # userRole ='user'
+        # if(payload.role == 'admin'):
+        #     userRole= 'admin'
+
         user = User(
             name= payload.name,
             email = payload.email,
             password = hash_password(payload.password),
-            # set default rule == user
-            role = "user"
+            # set default rule == user            
+            role = 'user'
         )
         return UserRepository.create_user(db, user)
 
@@ -45,8 +49,12 @@ class AuthService:
 
         token = create_access_token({
             'sub': str(user.id),
-            'email': user.email
+            'email': user.email,
+            'role':user.role,
         })
-        return token
+        return {
+            "token": token,
+            "user": user
+        }
 
     # TODO: buat refresh token !!

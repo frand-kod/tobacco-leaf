@@ -32,13 +32,15 @@ def login(
     payload : LoginRequest,
     db: Session = Depends(get_db)
     ):
-    token = AuthService.login(
-        db=db,
-        payload=payload        
-    )
-    # print(token)
-    # balikin access token
-    return{
-        'access_token' : token,
-        'token_type': "bearer"
+# Sekarang result berisi {'token': '...', 'user': <UserObject>}
+    result = AuthService.login(db=db, payload=payload)
+    
+    return {
+        'access_token': result['token'],
+        'token_type': "bearer",
+        'user': {
+            'id': result['user'].id,
+            'name': result['user'].name,
+            'role': result['user'].role
+        }
     }

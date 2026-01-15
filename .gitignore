@@ -4,3 +4,4 @@ app/.env
 app/**/__pycache__
 database.db
 app/uploads
+node_modules
