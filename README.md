@@ -1,219 +1,65 @@
-# Tobacco Leaf Prediction API
+# Tobacco Leaf Prediction
 
-A FastAPI-based backend for predicting tobacco leaf health using a machine learning model.
-Supports user authentication (JWT), prediction history (report), and file upload.
+Backend FastAPI + frontend Vue untuk mendeteksi penyakit daun tembakau
+(Alternaria Leaf Spot, Cercospora Leaf Spot, Healthy Leaf) dengan model Keras.
 
----
-
-## Features
-
-- **User Authentication**
-
-  - Register / Login / Logout
-  - JWT-based token authentication
-
-- **Prediction**
-
-  - Upload image and get ML prediction
-  - Save prediction + image path to database
-
-- **Reports**
-
-  - View prediction history
-  - Detail & delete prediction
-
-- **Architecture**
-
-  - Clean repo–service pattern
-  - JWT-secured routes
-  - Modular routers: `predict` & `report`
-
----
-
-## Project Structure
+## Struktur
 
 ```
-app/
-├── api/
-│   └── v1/
-│       ├── auth.py
-│       ├── user.py
-│       ├── prediction.py
-│       └── report.py
-├── core/
-│   ├── config.py
-│   └── security.py
-├── db/
-│   ├── base.py
-│   └── session.py
-├── models/
-│   ├── user.py
-│   └── prediction_report.py
-├── repositories/
-│   ├── user_repository.py
-│   └── prediction_repository.py
-├── schemas/
-│   ├── auth.py
-│   ├── user.py
-│   └── prediction.py
-├── services/
-│   ├── auth_service.py
-│   └── prediction_service.py
-├── ml/
-│   └── predictor.py
-└── utils/
-    └── resizer_image.py
+app/        backend (api/v1 → services → repository → models)
+  ml/       model_tembakau.keras + predictor
+  uploads/  gambar hasil upload (dibuat otomatis, tidak di-commit)
+frontend/   Vue 3 + Vite + Tailwind
+create_admin.py   CLI untuk membuat user admin
 ```
 
----
-
-## Requirements
-
-- Python 3.11+
-- FastAPI
-- SQLAlchemy
-- Pydantic
-- PostgreSQL / SQLite / MySQL (configurable)
-- `python-multipart` (for file upload)
-- `python-jose` (for JWT)
-- Pillow / OpenCV (for image processing)
-- Optional: Alembic for migrations
-
----
-
-## Installation
-
-1. Clone the repo:
+## Menjalankan backend
 
 ```bash
-git clone https://github.com/username/tobacco-prediction.git
-cd tobacco-prediction
-```
-
-2. Create virtual environment:
-
-```bash
-python -m venv venv
-source venv/bin/activate      # Linux / Mac
-venv\Scripts\activate         # Windows
-```
-
-3. Install dependencies:
-
-```bash
+python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
+cp app/.env.example app/.env        # isi SECRET_KEY
+uvicorn app.main:app --reload --port 8010
+python create_admin.py              # opsional: buat admin
 ```
 
-4. Configure environment variables in `.env`:
+Database SQLite (`database.db`) dibuat otomatis. Swagger: `http://localhost:8010/docs`.
 
-```env
-DATABASE_URL=sqlite:///./db.sqlite3
-SECRET_KEY=your_secret_key
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=60
-```
+Variabel `app/.env`:
 
----
+| Nama | Default | Keterangan |
+| --- | --- | --- |
+| `SECRET_KEY` | wajib | kunci JWT |
+| `BASE_URL` | `http://localhost:8010` | dipakai untuk membentuk URL gambar |
+| `CORS_ORIGINS` | `["http://localhost:5173"]` | origin frontend yang diizinkan (JSON list) |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | `15` | masa berlaku token |
 
-## Database Setup
+## Menjalankan frontend
 
 ```bash
-# If using SQLite, the DB will auto-create
-# For PostgreSQL/MySQL, create the DB first
-# Then run migrations (if using Alembic)
-alembic upgrade head
+cd frontend
+bun install
+bun dev          # http://localhost:5173
 ```
 
----
+API base URL diatur di `frontend/src/api.js`.
 
-## Run Development Server
+## Endpoint (prefix `/api/v1`)
 
-```bash
-uvicorn app.main:app --reload
-```
+Semua endpoint butuh `Authorization: Bearer <token>` kecuali `/auth/*`.
 
-Open Swagger docs at: `http://127.0.0.1:8000/docs`
+| Method | Path | Akses |
+| --- | --- | --- |
+| POST | `/auth/register` | publik |
+| POST | `/auth/login` | publik |
+| POST | `/model/predict` | user (upload gambar, maks 5 MB) |
+| GET | `/reports/` | user (riwayat milik sendiri) |
+| GET / DELETE | `/reports/{id}` | pemilik |
+| GET | `/user/list` | admin |
+| POST | `/user/` | admin |
+| GET / PUT / DELETE | `/user/{id}` | pemilik akun atau admin (ubah role: admin) |
 
----
+## Catatan
 
-## API Endpoints
-
-### Auth
-
-| Method | Endpoint         | Description             |
-| ------ | ---------------- | ----------------------- |
-| POST   | `/auth/register` | Register user           |
-| POST   | `/auth/login`    | Login and get JWT token |
-
-### User
-
-| Method | Endpoint | Description             |
-| ------ | -------- | ----------------------- |
-| GET    | `/user/` | List users (admin only) |
-
-### Prediction
-
-| Method | Endpoint            | Description                                |
-| ------ | ------------------- | ------------------------------------------ |
-| POST   | `/predictions/`     | Upload image & predict                     |
-| GET    | `/predictions/`     | List user predictions (optional if needed) |
-| GET    | `/predictions/{id}` | Detail of a prediction                     |
-| DELETE | `/predictions/{id}` | Delete a prediction                        |
-
-### Reports
-
-| Method | Endpoint        | Description                  |
-| ------ | --------------- | ---------------------------- |
-| GET    | `/reports/`     | List user prediction reports |
-| GET    | `/reports/{id}` | Get single report            |
-| DELETE | `/reports/{id}` | Delete a report              |
-
-> All endpoints (except `/auth/register` & `/auth/login`) require `Authorization: Bearer <token>` header.
-
----
-
-## Security
-
-- JWT authentication
-- All actions tied to `user_id` from token
-- Users cannot access or delete other users’ predictions
-
----
-
-## Testing
-
-Use **Postman / Insomnia / Swagger UI** to test:
-
-- Register user
-- Login & get token
-- Upload image to `/predictions`
-- Fetch reports from `/reports`
-
----
-
-## Notes
-
-- Images are resized & saved via `utils/resizer_image.py`
-- Prediction logic is in `ml/predictor.py`
-- Pagination, filtering, and admin access can be added later
-
----
-
-## Dependencies
-
-```text
-fastapi
-uvicorn
-sqlalchemy
-pydantic
-python-multipart
-python-jose
-passlib
-pillow
-```
-
----
-
-## License
-
-MIT License
+- Gambar di-resize 224×224 dan disimpan lewat `app/utils/resizer_image.py`.
+- Token tidak punya refresh; saat kedaluwarsa frontend diarahkan ke login.

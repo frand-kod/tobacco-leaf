@@ -1,4 +1,7 @@
-from fastapi import UploadFile,HTTPException
+import io
+from fastapi import UploadFile, HTTPException
+from fastapi.concurrency import run_in_threadpool
+from PIL import Image
 from sqlalchemy.orm import Session
 from app.repository.predict_repository import PredictRepository
 from app.ml.predictor import predict_from_bytes
@@ -7,12 +10,21 @@ from app.schemas.prediction import ReportResponse
 from app.utils.resizer_image import save_resized_image
 from app.utils.builder_url import build_img_url
 
+MAX_UPLOAD_BYTES = 5 * 1024 * 1024
+
 class PredictionService:
     @staticmethod
     async def predict_and_save(db: Session, user_id: int, file: UploadFile):
-        contents = await file.read()
+        contents = await file.read(MAX_UPLOAD_BYTES + 1)
+        if len(contents) > MAX_UPLOAD_BYTES:
+            raise HTTPException(status_code=413, detail="Image too large (max 5 MB)")
+        try:
+            Image.open(io.BytesIO(contents)).verify()
+        except Exception:
+            raise HTTPException(status_code=400, detail="File is not a valid image")
 
-        result = predict_from_bytes(contents)
+        # model.predict berat dan sinkron: jalankan di threadpool agar event loop tidak macet
+        result = await run_in_threadpool(predict_from_bytes, contents)
         image_path = save_resized_image(contents)
 
         report = PredictionReport(

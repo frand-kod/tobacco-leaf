@@ -1,15 +1,11 @@
-from pydantic import BaseModel,EmailStr,Field
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
-class PredictionResponse(BaseModel):
-    label:str
-    confidence : float
 
 class ReportResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     label: str
-    image_path:str
+    image_path: str
     confidence: float
     created_at: datetime
-
-    class Config:
-        from_attributes = True

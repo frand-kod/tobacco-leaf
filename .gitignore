@@ -4,4 +4,5 @@ app/.env
 app/**/__pycache__
 database.db
 app/uploads
+.history-memo
 node_modules

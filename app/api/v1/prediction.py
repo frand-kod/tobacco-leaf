@@ -1,11 +1,9 @@
 # app/api/v1/prediction.py
 from fastapi import APIRouter, Depends, UploadFile, File
 from sqlalchemy.orm import Session
-from app.schemas.prediction import PredictionResponse,ReportResponse
+from app.schemas.prediction import ReportResponse
 
-from typing import List
 from app.models.user import User
-from app.db.session import SessionLocal
 from app.services.prediction_service import PredictionService
 from app.api.deps import get_current_user,get_database
 

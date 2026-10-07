@@ -12,7 +12,7 @@
         <BaseInput v-model="localUser.name" label="Full Name" required />
         <BaseInput v-model="localUser.email" label="Email Address" type="email" required />
 
-        <div>
+        <div v-if="isAdmin">
           <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
           <select
             v-model="localUser.role"
@@ -51,6 +51,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'updated'])
 
+const isAdmin = localStorage.getItem('user_role') === 'admin'
 const loading = ref(false)
 // Gunakan ref lokal agar tidak mengubah data di parent sebelum disave (reactive copy)
 const localUser = ref({ ...props.user })

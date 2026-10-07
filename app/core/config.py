@@ -11,7 +11,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
 
     # App
-    BASE_URL : str = "http://localhost:8000"
+    BASE_URL : str = "http://localhost:8010"
+    CORS_ORIGINS: list[str] = ["http://localhost:5173"]
 
     model_config = SettingsConfigDict(
         env_file=str(ENV_FILE),

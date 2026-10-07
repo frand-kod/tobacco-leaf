@@ -136,6 +136,7 @@ const handleLogin = async () => {
     localStorage.setItem('token', res.data.access_token)
     localStorage.setItem('user_id', res.data.user.id)
     localStorage.setItem('user_role', res.data.user.role)
+    localStorage.setItem('user_name', res.data.user.name)
 
     // Opsional: Gunakan toast alih-alih alert agar UX lebih smooth
     router.push('/dashboard')

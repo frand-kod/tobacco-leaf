@@ -8,21 +8,14 @@
   </div>
 </template>
 
-<script setup>
-// Tidak butuh logika berat di sini karena sudah dihandle oleh Router
-</script>
-
 <style>
 /* Animasi transisi antar halaman agar lebih smooth */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.6 cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: opacity 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .fade-enter-from {
-  opacity: 0;
-  filter: blur(1px); /* Blur lebih dalam untuk transisi masuk */
-
   opacity: 0;
   filter: blur(1px);
 }

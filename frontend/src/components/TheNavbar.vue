@@ -94,12 +94,11 @@ import LoadingOverlay from '@/components/LoadingOverlay.vue' // Import overlay A
 const router = useRouter()
 const isLoggingOut = ref(false)
 const role = localStorage.getItem('user_role')
-const userName = localStorage.getItem('user_role') || 'User'
+const userName = localStorage.getItem('user_name') || 'User'
 
 const navLinks = computed(() => {
   const links = [
     { name: 'Dashboard', path: '/dashboard' },
-    { name: 'Docs', path: '/docs', badge: 'API' },
   ]
   if (role === 'admin') {
     links.push({ name: 'User Management', path: '/users' })

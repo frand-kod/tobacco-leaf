@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 import tensorflow as tf
 
@@ -11,14 +10,7 @@ class TembakauModel:
 
 
     def load_model(self):
-        try:
-            model = tf.keras.models.load_model(
-                self.model_path,
-                compile=False
-            )
-            return model
-        except Exception as e :
-            return None
+        return tf.keras.models.load_model(self.model_path, compile=False)
 
 MODEL = TembakauModel()
 class_names = [

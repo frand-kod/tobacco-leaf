@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from app.api.v1 import user,auth,prediction,report
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.init_db import init_db
+from app.core.config import settings
 
 from fastapi.staticfiles import StaticFiles
 
@@ -14,9 +15,7 @@ def startup():
 # CORS FIX
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "*"
-    ],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

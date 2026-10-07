@@ -5,9 +5,6 @@ from app.ml.model import MODEL,class_names
 from PIL import Image 
 
 def predict_from_bytes(image_bytes: bytes):
-    if MODEL.model is None:
-        raise RuntimeError("Model not loaded")
-
     img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
     img = img.resize((224, 224))
 

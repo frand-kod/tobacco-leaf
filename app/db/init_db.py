@@ -2,7 +2,7 @@ from app.db.session import engine
 from app.db.base import Base
 
 # import semua model agar dikenali SQLAlchemy
-from app.models import user
+from app.models import user, prediction_report
 
 def init_db():
     Base.metadata.create_all(bind=engine)

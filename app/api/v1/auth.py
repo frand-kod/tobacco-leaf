@@ -1,20 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.db.session import SessionLocal
-from app.models.user import User
 from app.schemas.auth import RegisterRequest, RegisterResponse,LoginRequest,TokenResponse
-from app.core.security import hash_password
+from app.api.deps import get_database
 from app.services.auth_service import AuthService
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.post(
     "/register",
@@ -23,14 +14,14 @@ def get_db():
 )
 def register(
     payload: RegisterRequest,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_database)
     ):
     return AuthService.register(db,payload)
 
 @router.post("/login",response_model = TokenResponse)
 def login(
     payload : LoginRequest,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_database)
     ):
 # Sekarang result berisi {'token': '...', 'user': <UserObject>}
     result = AuthService.login(db=db, payload=payload)
