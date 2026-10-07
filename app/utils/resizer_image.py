@@ -17,3 +17,10 @@ def save_resized_image(contents: bytes) -> str:
     img.save(fs_path, "JPEG", quality=90)
 
     return f"{PUBLIC_DIR}/{filename}"
+
+
+def delete_image(public_path: str) -> None:
+    try:
+        os.remove(os.path.join(BASE_UPLOAD_DIR, public_path))
+    except OSError:
+        pass

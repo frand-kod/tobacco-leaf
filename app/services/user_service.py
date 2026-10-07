@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from app.models.user import User
 from app.schemas.user import UserCreate, UserUpdate
 from app.repository.user_repository import UserRepository
+from app.repository.predict_repository import PredictRepository
+from app.utils.resizer_image import delete_image
 # hashing
 from app.core.security import hash_password
 
@@ -62,4 +64,11 @@ class UserService:
     @staticmethod
     def delete_user(db: Session, user_id: int):
         user = UserService.get_user(db, user_id)
-        UserRepository.delete_user(db, user)
+        # hapus laporan + gambarnya agar tidak jadi data yatim
+        paths = []
+        for report in PredictRepository.get__predict_by_user(db, user_id):
+            paths.append(report.image_path)
+            db.delete(report)
+        UserRepository.delete_user(db, user)  # commit sekali untuk laporan + user
+        for path in paths:
+            delete_image(path)

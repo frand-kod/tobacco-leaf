@@ -38,6 +38,13 @@
             placeholder="••••••••"
             required
           />
+          <BaseInput
+            v-model="form.confirmPassword"
+            label="Confirm Password"
+            type="password"
+            placeholder="••••••••"
+            required
+          />
 
           <div class="pt-4">
             <button
@@ -99,7 +106,7 @@ const form = ref({
   name: '',
   email: '',
   password: '',
-  confirmPassword: '', // Tambahkan untuk konfirmasi password
+  confirmPassword: '',
 })
 
 const handleRegister = async () => {

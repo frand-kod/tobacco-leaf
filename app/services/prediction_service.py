@@ -7,7 +7,7 @@ from app.repository.predict_repository import PredictRepository
 from app.ml.predictor import predict_from_bytes
 from app.models.prediction_report import PredictionReport
 from app.schemas.prediction import ReportResponse
-from app.utils.resizer_image import save_resized_image
+from app.utils.resizer_image import save_resized_image, delete_image
 from app.utils.builder_url import build_img_url
 
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
@@ -84,4 +84,5 @@ class PredictionService:
             raise HTTPException(status_code=404, detail="Prediction not found")
 
         PredictRepository.delete_predict(db, predict)
+        delete_image(predict.image_path)
         return {"message": "Prediction deleted"}

@@ -12,4 +12,13 @@ const router = createRouter({
   ],
 })
 
+const publicPaths = ['/login', '/register']
+
+router.beforeEach((to) => {
+  const token = localStorage.getItem('token')
+  if (!token && !publicPaths.includes(to.path)) return '/login'
+  if (token && publicPaths.includes(to.path)) return '/dashboard'
+  if (to.path === '/users' && localStorage.getItem('user_role') !== 'admin') return '/dashboard'
+})
+
 export default router
